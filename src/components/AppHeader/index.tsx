@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { User } from "../../api/services/User/store";
 import AvatarMenu from "../AvatarMenu";
+import LangMenu from "../LangMenu";
 
 interface AppBarProps extends MuiAppBarProps {
   theme?: Theme;
@@ -38,13 +39,18 @@ const AppHeader = React.forwardRef((props: AppHeaderProps, ref) => {
   const hours = 1;
   const minutes = hours * 60;
   const seconds = minutes * 60;
-  const countdown = seconds - count;
+  const countdown = Math.max(seconds - count, 0);
   const countdownMinutes = `${~~(countdown / 60)}`.padStart(2, "0");
   const countdownSeconds = (countdown % 60).toFixed(0).padStart(2, "0");
 
   useEffect(() => {
     setInterval(() => {
-      setCount((c) => c + 1);
+      setCount((c) => {
+        if (c >= seconds) {
+          return 0; // Reset the countdown after reaching 0
+        }
+        return c + 1;
+      });
     }, 1000);
   }, []);
 
@@ -79,7 +85,8 @@ const AppHeader = React.forwardRef((props: AppHeaderProps, ref) => {
               {pageTitle.toLocaleUpperCase()}
             </Typography>
           </Box>
-          <Box sx={{ flex: 1, justifyContent: "flex-end", display: "flex" }}>
+          <Box sx={{ flex: 1, justifyContent: "flex-end", display: "flex", gap: 1 }}>
+            <LangMenu />
             {user && user.eMail && (
               <Grow in={Boolean(user && user.eMail)}>
                 <AvatarMenu user={user} />
